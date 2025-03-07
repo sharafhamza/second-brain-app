@@ -1,30 +1,36 @@
-import mongoose, { Schema, model } from "mongoose";
+import mongoose, { Schema, Types, model } from "mongoose";
+import { MONGO_URL } from "./config";
 
-mongoose.connect(
-  "mongodb+srv://hamza:WDAEXr19oN20aXen@cluster0.alc6g.mongodb.net/brainly"
-);
+mongoose.connect(MONGO_URL);
 
 const userSchema = new Schema({
-  username: { type: String, required: true, unique: true },
+  username: { type: String, required: true },
   password: { type: String, required: true },
 });
 
-export const UserModel = model("User", userSchema);
+export const User = model("Users", userSchema);
+
+const contentTypes = ["image", "video", "article", "audio", "twitter"];
+
+const contentSchema = new Schema({
+  link: { type: String, required: true },
+  type: { type: String, enum: contentTypes, required: true },
+  title: { type: String, required: true },
+  tags: [{ type: Types.ObjectId, ref: "Tag" }],
+  userId: { type: Types.ObjectId, ref: "Users", required: true },
+});
+
+export const Content = model("Content", contentSchema);
 
 const tagSchema = new Schema({
   title: { type: String, required: true, unique: true },
 });
 
-export const TagModel = model("Tag", tagSchema);
+export const Tag = model("Tag", tagSchema);
 
-const contentTypes = ["image", "video", "article", "audio"];
-
-const content = new Schema({
-  link: { type: String, required: true },
-  type: String,
-  title: { type: String, required: true },
-  tags: [{ type: mongoose.Types.ObjectId, ref: "Tag" }],
-  userId: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+const linkSchema = new Schema({
+  hash: String,
+  userId: { type: Types.ObjectId, ref: "Users", required: true, unique: true },
 });
 
-export const ContentModel = model("Content", content);
+export const Link = model("Links", linkSchema);
